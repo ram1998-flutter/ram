@@ -23,15 +23,9 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
 
 # إعدادات الأيقونة (ضع صورتك في مجلد assets باسم app_icon.png)
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/3.png"
-  adaptive_icon_background: "#0D47A1"
-  adaptive_icon_foreground: "assets/3.png"
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/3.png
+
+
 
