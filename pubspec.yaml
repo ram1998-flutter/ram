@@ -1,4 +1,4 @@
-name: House
+name: house
 description: "نظام إدارة الشقق السكنية للموبايل"
 version: 1.0.0+1
 
@@ -34,3 +34,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/3.png
+
