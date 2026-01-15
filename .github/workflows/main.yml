@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # تحديث لآخر نسخة
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -24,23 +24,31 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      - name: Create Clean Project and Move Files
+      - name: Create Project and Locate Files
         run: |
-          # إنشاء المشروع باسم صغير لتجنب خطأ 64 وخطأ التسمية
+          # 1. إنشاء مشروع جديد نظيف
           flutter create --project-name house temp_app
           
-          # استبدال الملفات الافتراضية بملفاتك الثلاثة
-          cp pubspec.yaml temp_app/pubspec.yaml
-          cp main.dart temp_app/lib/main.dart
-          cp AndroidManifest.xml temp_app/android/app/src/main/AndroidManifest.xml
+          # 2. البحث عن ملفاتك ونقلها للمكان الصحيح (حتى لو كانت داخل مجلدات فرعية)
+          # سنستخدم أمر find للبحث عن الملفات بالاسم
+          find . -name "pubspec.yaml" -not -path "./temp_app/*" -exec cp {} temp_app/pubspec.yaml \;
+          find . -name "main.dart" -not -path "./temp_app/*" -exec cp {} temp_app/lib/main.dart \;
+          find . -name "AndroidManifest.xml" -not -path "./temp_app/*" -exec cp {} temp_app/android/app/src/main/AndroidManifest.xml \;
           
+          # 3. عرض رسالة تأكيد لوجود الملفات للتأكد في السجلات (Logs)
+          echo "Checking files in temp_app:"
+          ls -l temp_app/pubspec.yaml
+          ls -l temp_app/lib/main.dart
+          ls -l temp_app/android/app/src/main/AndroidManifest.xml
+
+      - name: Install Dependencies
+        run: |
           cd temp_app
           flutter pub get
 
       - name: Build APK
         run: |
           cd temp_app
-          # بناء نسخة الـ APK
           flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
