@@ -1,0 +1,59 @@
+name: Flutter Build APK
+
+on:
+  push:
+    branches: [ main ] # سيعمل الكود عند الرفع على فرع main
+  workflow_dispatch: # يتيح لك تشغيل البناء يدوياً
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. جلب الكود من المستودع
+      - uses: actions/checkout@v3
+
+      # 2. إعداد الجافا (مطلوبة للاندرويد)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. إعداد فلاتر
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0' # يمكنك تغيير النسخة حسب حاجتك
+          channel: 'stable'
+
+      # 4. بناء هيكل المشروع (توليد مجلد android و ios)
+      - name: Reconstruct Flutter Project
+        run: |
+          # إنشاء مشروع جديد مؤقت بنفس الاسم في النقطة الحالية
+          flutter create . --force
+          
+          # استبدال ملف pubspec بملفك المرفوع
+          cp pubspec.yaml temp_pubspec.yaml && mv temp_pubspec.yaml pubspec.yaml
+          
+          # وضع ملف البرمجة في مكانه الصحيح
+          mkdir -p lib
+          cp main.dart lib/main.dart
+          
+          # وضع ملف المانيفست في مكانه الصحيح (اندرويد)
+          cp AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+
+      # 5. تحميل المكتبات
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 6. بناء ملف APK
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      # 7. رفع الملف الناتج لتقوم بتحميله
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
