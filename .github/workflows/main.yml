@@ -26,11 +26,10 @@ jobs:
 
       - name: Create Clean Project and Move Files
         run: |
-          # لاحظ هنا استخدمنا نفس اسم مشروعك House
-          # إذا استمر الخطأ 64، يفضل تغيير الاسم في pubspec إلى house (صغير) وتغييره هنا أيضاً
-          flutter create --project-name House temp_app
+          # إنشاء المشروع باسم صغير لتجنب خطأ 64 وخطأ التسمية
+          flutter create --project-name house temp_app
           
-          # نقل ملفاتك الثلاثة
+          # استبدال الملفات الافتراضية بملفاتك الثلاثة
           cp pubspec.yaml temp_app/pubspec.yaml
           cp main.dart temp_app/lib/main.dart
           cp AndroidManifest.xml temp_app/android/app/src/main/AndroidManifest.xml
@@ -41,10 +40,11 @@ jobs:
       - name: Build APK
         run: |
           cd temp_app
+          # بناء نسخة الـ APK
           flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: House-App-Release
+          name: House-System-App
           path: temp_app/build/app/outputs/flutter-apk/app-release.apk
